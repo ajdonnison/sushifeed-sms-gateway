@@ -45,7 +45,7 @@ exports.handler = function (event, context, callback) {
                 console.log('failed to send SMS\n', err)
                 callback(err)
               } else {
-                console.log('Sent SMS')
+                console.log('Sent SMS', data)
                 callback(null, null)
               }
             })
