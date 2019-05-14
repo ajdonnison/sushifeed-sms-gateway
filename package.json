@@ -9,6 +9,6 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "parse-email": "^1.0.0"
+    "mailparser": "^2.7.1"
   }
 }

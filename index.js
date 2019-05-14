@@ -1,4 +1,4 @@
-const parse = require('parse-email')
+const parse = require('mailparser').simpleParser
 const AWS = require('aws-sdk')
 const S3 = new AWS.S3({ httpOptions: { timeout: 2000, connectTimeout: 1000 } })
 const SNS = new AWS.SNS()
