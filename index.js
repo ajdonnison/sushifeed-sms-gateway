@@ -6,7 +6,6 @@ const _async = require('async')
 
 exports.handler = function (event, context, callback) {
   var message = event.Records[0].ses
-  console.log('SES content:\n', JSON.stringify(message, null, 2))
 
   const getRecipient = function (recipientList) {
     console.log('extracting recipient from', recipientList)
@@ -51,7 +50,6 @@ exports.handler = function (event, context, callback) {
         console.log(err, err.stack)
         return done(err)
       }
-      console.log('Raw email:\n' + data.Body)
       emailstruct = data
       done()
     }),
