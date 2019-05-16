@@ -29,7 +29,8 @@ exports.handler = function (event, context, callback) {
     for (let line of data) {
       let url = line.match(urlmatch)
       if (url) {
-        return `${process.env.MESSAGE_PREFIX} ${url} ${process.env.MESSAGE_POSTFIX}`
+        console.log(url)
+        return `${process.env.MESSAGE_PREFIX} ${url[0]} ${process.env.MESSAGE_POSTFIX}`
       }
     }
     return 'You have a message'
