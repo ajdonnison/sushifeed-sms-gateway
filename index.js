@@ -63,7 +63,7 @@ exports.handler = function (event, context, callback) {
     done => {
       _async.eachOf(phones, (phone, done) => {
         SNS.publish({
-          PhoneNUmber: phone,
+          PhoneNumber: phone,
           Message: parsedEmail
         },
         (err, data) => {
