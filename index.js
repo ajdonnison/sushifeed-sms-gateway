@@ -23,11 +23,13 @@ exports.handler = function (event, context, callback) {
 
   // Needs more work, should look for the first available link
   // and wrap some text around it.
+  const urlmatch = /https?:\/\/(www\.)?[-a-zA-Z0-9@:%._+~#=]{2,256}\.[a-z]{2,6}\b([-a-zA-Z0-9@:%_+.~#?&//=]*)/
   const extractLink = function (text) {
     let data = text.split(/[\r\n]/)
     for (let line of data) {
-      if (line.match(/https?:/)) {
-        return line
+      let url = line.match(urlmatch)
+      if (url) {
+        return `${process.env.MESSAGE_PREFIX} ${url} ${process.env.MESSAGE_POSTFIX}`
       }
     }
     return 'You have a message'
@@ -61,7 +63,7 @@ exports.handler = function (event, context, callback) {
       done()
     }),
     done => {
-      _async.eachOf(phones, (phone, done) => {
+      _async.eachOf(phones, (phone, ix, done) => {
         SNS.publish({
           PhoneNumber: phone,
           Message: parsedEmail
