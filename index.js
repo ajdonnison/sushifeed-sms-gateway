@@ -7,9 +7,27 @@ const _async = require('async')
 exports.handler = function (event, context, callback) {
   var message = event.Records[0].ses
 
+  /*
+   * Only accept numeric addresses to our mailhub. Avoids the issue
+   * of multiple recipients where one or more may be to different domains.
+   * It also normalises non-country-coded numbers with Australian country code,
+   * assuming that only Australia uses it.
+   */
   const getRecipient = function (recipientList) {
     console.log('extracting recipient from', recipientList)
-    return recipientList.map(el => el.split('@')[0])
+    const valid = RegExp('^[0-9+]+$')
+    return recipientList.filter(el => el.split('@')[1].toLowerCase() === 'mailhub.sushifeed.org')
+      .map(el => el.split('@')[0])
+      .filter(el => valid.test(el))
+      .map(el => {
+        if (el.length <= 10) {
+          if (el.startsWith('0')) {
+            el = el.substr(1)
+          }
+          el = `+61${el}`
+        }
+        return el
+      })
   }
 
   if (message.receipt.dkimVerdict.status === 'FAIL' ||
@@ -25,11 +43,11 @@ exports.handler = function (event, context, callback) {
   const urlmatch = /https?:\/\/(www\.)?[-a-zA-Z0-9@:%._+~#=]{2,256}\.[a-z]{2,6}\b([-a-zA-Z0-9@:%_+.~#?&//=]*)/
   const extractLink = function (text) {
     let data = text.split(/[\r\n]/)
-    for (let line of data) {
-      let url = line.match(urlmatch)
+    for (let line in data) {
+      let url = data[line].match(urlmatch)
       if (url) {
         console.log(url)
-        return `${process.env.MESSAGE_PREFIX} ${url[0]} ${process.env.MESSAGE_POSTFIX}`
+        return `${data.slice(0,line+1).join('\r\n')}`
       }
     }
     return 'You have a message'
@@ -68,11 +86,12 @@ exports.handler = function (event, context, callback) {
           Message: parsedEmail
         },
         (err, data) => {
+          // We don't care about individual errors
           if (err) {
             console.log('failed to send SMS\n', err)
-            return done(err)
+          } else {
+            console.log(data)
           }
-          console.log(data)
           done()
         })
       },
